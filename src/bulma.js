@@ -1,13 +1,13 @@
 /* eslint no-unused-vars: 0 */
 
 import Bulma from './core';
-import { Notification } from './plugins/notification';
+// import { Notification } from './plugins/notification';
 import { Navbar } from './plugins/navbar';
-import { Message } from './plugins/message';
+// import { Message } from './plugins/message';
 import { Dropdown } from './plugins/dropdown';
-import { Modal } from './plugins/modal';
-import { Alert } from './plugins/alert';
+// import { Modal } from './plugins/modal';
+// import { Alert } from './plugins/alert';
 import { File } from './plugins/file';
-import { Tabs } from './plugins/tabs';
+// import { Tabs } from './plugins/tabs';
 
 export default Bulma;
