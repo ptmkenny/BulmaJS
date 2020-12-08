@@ -13,7 +13,13 @@ export class Navbar extends Plugin {
      * @return {undefined}
      */
     static parseDocument(context) {
-        let elements = context.querySelectorAll('.navbar');
+        let elements;
+
+        if (typeof context.classList === 'object' && context.classList.contains('navbar')) {
+            elements = [context];
+        } else {
+            elements = context.querySelectorAll('.navbar');
+        }
 
         Bulma.each(elements, (element) => {
             Bulma(element).navbar({
@@ -51,7 +57,7 @@ export class Navbar extends Plugin {
         super(config, root);
 
         // Work out the parent if it hasn't been supplied as an option.
-        if(this.parent === null) {
+        if (this.parent === null) {
             this.parent = this.config.get('root').parentNode;
         }
 
@@ -60,12 +66,13 @@ export class Navbar extends Plugin {
          * @type {HTMLElement}
          */
         this.root = this.config.get('root');
+        this.root.setAttribute('data-bulma-attached', 'attached');
 
         /**
          * The element used for the trigger.
          * @type {HTMLElement}
          */
-        this.triggerElement = this.root.querySelector('.navbar-burger'),
+        this.triggerElement = this.root.querySelector('.navbar-burger');
 
         /**
          * The target element.
@@ -78,7 +85,7 @@ export class Navbar extends Plugin {
          * @type {boolean}
          */
         this.sticky = !!this.config.get('sticky');
-        
+
         /**
          * The offset in pixels before the navbar will stick to the top of the page
          * @type {number}
@@ -116,6 +123,12 @@ export class Navbar extends Plugin {
         this.lastScrollY = 0;
 
         /**
+         * An array of any navbar dropdowns
+         * @type {NodeList}
+         */
+        this.dropdowns = this.root.querySelectorAll('.navbar-item.has-dropdown:not(.is-hoverable)');
+
+        /**
          * Bind the relevant event handlers to this instance. So that we can remove them if needed
          */
         this.handleScroll = this.handleScroll.bind(this);
@@ -132,9 +145,13 @@ export class Navbar extends Plugin {
     registerEvents() {
         this.triggerElement.addEventListener('click', this.handleTriggerClick.bind(this));
 
-        if(this.sticky) {
+        if (this.sticky) {
             this.enableSticky();
         }
+
+        Bulma.each(this.dropdowns, (dropdown) => {
+            dropdown.addEventListener('click', this.handleDropdownTrigger);
+        });
     }
 
     /**
@@ -142,7 +159,7 @@ export class Navbar extends Plugin {
      * @return {undefined}
      */
     handleTriggerClick() {
-        if(this.target.classList.contains('is-active')) {
+        if (this.target.classList.contains('is-active')) {
             this.target.classList.remove('is-active');
             this.triggerElement.classList.remove('is-active');
         } else {
@@ -157,6 +174,17 @@ export class Navbar extends Plugin {
      */
     handleScroll() {
         this.toggleSticky(window.pageYOffset);
+    }
+
+    /**
+     * Handle the click handler for any dropdowns found within the navbar
+     */
+    handleDropdownTrigger() {
+        if (this.classList.contains('is-active')) {
+            this.classList.remove('is-active');
+        } else {
+            this.classList.add('is-active');
+        }
     }
 
     /**
@@ -181,7 +209,7 @@ export class Navbar extends Plugin {
      * Enable hide on scroll. Also enable sticky if it's not already.
      */
     enableHideOnScroll() {
-        if(!this.sticky) {
+        if (!this.sticky) {
             this.enableSticky();
         }
 
@@ -204,23 +232,23 @@ export class Navbar extends Plugin {
      * @return {undefined}
      */
     toggleSticky(scrollY) {
-        if(scrollY > this.stickyOffset) {
+        if (scrollY > this.stickyOffset) {
             this.root.classList.add('is-fixed-top');
             document.body.classList.add('has-navbar-fixed-top');
 
-            if(this.shadow) {
+            if (this.shadow) {
                 this.root.classList.add('has-shadow');
             }
         } else {
             this.root.classList.remove('is-fixed-top');
             document.body.classList.remove('has-navbar-fixed-top');
 
-            if(this.shadow) {
+            if (this.shadow) {
                 this.root.classList.remove('has-shadow');
             }
         }
 
-        if(this.hideOnScroll) {
+        if (this.hideOnScroll) {
             let scrollDirection = this.calculateScrollDirection(scrollY, this.lastScrollY);
             let triggeredTolerance = this.difference(scrollY, this.lastScrollY) >= this.tolerance;
 
